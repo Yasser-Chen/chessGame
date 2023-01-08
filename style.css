@@ -1,0 +1,166 @@
+body{
+    background-color: black;
+}
+
+div#game.role-black .fg-white{
+    cursor: default;
+    /* color: rgb(211, 211, 211); */
+}
+div#game.role-black .fg-black{
+    cursor: grab;
+    /* color: black; */
+}
+div#game.role-white .fg-white{
+    cursor: grab;
+    /* color: white; */
+}
+div#game.role-white .fg-black{
+    cursor: default;
+    /* color: rgb(34, 34, 34); */
+}
+
+.btn-start{
+    color: white!important;
+    font-size: 40px;
+    padding-top: 3px!important;
+}
+
+.board{
+    height: 500px;    
+    width : 500px;    
+    background-color: black;
+    color: white;
+    text-align: center;
+}
+
+i{
+    font-size: 40px;
+    margin: 0;
+}
+
+
+#game{
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center; 
+}
+.black{  
+    background-color: black;
+}
+.fg-white{  
+    text-shadow: 0 0 2000px #fff, 0 0 3px black, 0 0 3px black, 0 0 3px black, 0 0 3px black, 0 0 3px black, 0 0 3px black;
+    color: white;
+}
+.fg-black{  
+    text-shadow: 0 0 2000px #fff, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white;
+    color: black;
+}
+
+#WhiteTimer{
+    font-size: xx-large;
+    text-align: center;
+    width : 150px;  
+    background-color:white;
+    color: black;
+}
+#BlackTimer{
+    font-size: xx-large;
+    border: white solid 1px;
+    text-align: center;
+    width : 150px;  
+    background-color:black;
+    color: white;
+}
+#WhiteTimer.low-on-time{
+    color: white;
+}
+#BlackTimer.low-on-time{
+    color: black;
+}
+.white{
+    background-color: rgb(241, 241, 241);
+}
+
+
+
+
+td.incheck{
+  background-color: rgb(211, 76, 76);  
+}
+.th{
+    padding : 0!important ;
+    width   : 0!important ;
+}
+.low-on-time{
+    background-color: rgb(160, 0, 0)!important;
+}
+.fixed-with{
+    width: 61.43px;
+    display: block;
+}
+td{
+    width: 61.43px;
+    height: 61.43px;
+    text-align:center;
+}
+td i{
+    min-width: 40px!important;
+    min-height: 40px!important;
+}
+.btn-select-piece{
+    padding: 5px;
+    border: 1px rgb(61, 60, 60) solid;
+    margin: 1px;
+}
+th {
+    -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none; /* Safari */
+       -khtml-user-select: none; /* Konqueror HTML */
+         -moz-user-select: none; /* Old versions of Firefox */
+          -ms-user-select: none; /* Internet Explorer/Edge */
+              user-select: none; /* Non-prefixed version, currently
+                                    supported by Chrome, Edge, Opera and Firefox */
+}
+#game{
+    position: relative ;
+}
+.overlay{
+    height: 100% ;
+    position: absolute ;
+    -ms-flex-align: center ;
+    align-items: center ;
+    background-color: rgba(255, 255, 255, 0.301) ;
+    display: flex ;
+    left: 0 ;
+    right: 0 ;
+    -ms-flex-pack: center ;
+    justify-content: center ;
+    z-index: 100 ;
+    font-size: xx-large ;
+}
+
+i.ui-draggable-dragging {
+    z-index: 49;
+    -webkit-animation: glow 1s ease-in-out infinite alternate;
+    -moz-animation: glow 1s ease-in-out infinite alternate;
+    animation: glow 1s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    from {
+        text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #e60073, 0 0 40px #e60073, 0 0 50px #e60073, 0 0 60px #e60073, 0 0 70px #e60073;
+    }
+    to {
+        text-shadow: 0 0 20px #fff, 0 0 30px #ff4da6, 0 0 40px #ff4da6, 0 0 50px #ff4da6, 0 0 60px #ff4da6, 0 0 70px #ff4da6, 0 0 80px #ff4da6;
+    }
+}
+
+
+.white.possibleMove{
+    background-color: #e4b944;
+}
+
+.black.possibleMove{
+    background-color: #7e6522;
+}
