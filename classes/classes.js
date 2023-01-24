@@ -525,30 +525,77 @@ Board.prototype.moveTo = function (piece,square) {
     $(piece.element).css({
         top: "0px",left: "0px"
     });
-    let oldIndex = this.pieces.indexOf(($(square).find('i')??{data:()=>{}}).data('piece'));
-    if(oldIndex!=-1){
-        this.movesCounter = 0;
-        this.pieces[oldIndex] = null ;
-        eat.play();
+    let oldPiece = ($(square).find('i')??{data:()=>{}}).data('piece') ;
+    let oldIndex = this.pieces.indexOf(oldPiece);
+    console.log(oldPiece);
+    if(
+        oldPiece
+        &&
+        piece.color == oldPiece.color
+        &&
+        piece.x == oldPiece.x
+        &&
+        piece.constructor.name == 'King' && oldPiece.constructor.name == 'Rook'
+        ){
+            if(oldPiece.y==8){
+                piece.y = 7 ;
+                oldPiece.y = 6 ;
+            }else{
+                piece.y = 3 ;
+                oldPiece.y = 4 ;
+            }
+            let king = $(piece.element).detach() ;
+            king.draggable({
+                drag: onPieceDrag,
+                stop: onPieceStopDrag,
+                scroll: false 
+            });
+            piece.element = king ;
+
+            let rook = $(oldPiece.element).detach() ;
+            rook.draggable({
+                drag: onPieceDrag,
+                stop: onPieceStopDrag,
+                scroll: false 
+            });
+            piece.element = rook ;
+    
+            $(`td[x=${piece.x}][y=${piece.y}]`).append(king);
+            $(`td[x=${oldPiece.x}][y=${oldPiece.y}]`).append(rook);
+
+            piece.recalculateAttackingSquares(this);
+            oldPiece.recalculateAttackingSquares(this);
+
+            castel.play();
+            this.movesCounter = 0 ;
     }else{
-        movePlayed.play();
-    }
-    $(square).empty();
-    let a = $(piece.element).detach();
-    a.draggable({
-        drag: onPieceDrag,
-        stop: onPieceStopDrag,
-        scroll: false 
-    });
-    piece.element = a ;
+        if(oldIndex!=-1){
+            this.movesCounter = 0;
+            this.pieces[oldIndex] = null ;
+            eat.play();
+            $(square).empty();
+            
+        }else{
+            movePlayed.play();
+        }
 
-    //15 rule
-    if(piece.constructor.name == 'Pawn'){
-        this.movesCounter = 0;
+        let a = $(piece.element).detach();
+        a.draggable({
+            drag: onPieceDrag,
+            stop: onPieceStopDrag,
+            scroll: false 
+        });
+        piece.element = a ;
+
+        //15 rule
+        if(piece.constructor.name == 'Pawn'){
+            this.movesCounter = 0;
+        }
+
+        piece.recalculateAttackingSquares(this);
+        $(square).append(a);
     }
 
-    piece.recalculateAttackingSquares(this);
-    $(square).append(a);
     this.movesCounter ++;
 }
 
@@ -850,6 +897,91 @@ King.prototype.isLegal = function(board,x,y) {
     // can't eat same color
     if(oldPiece){
         if(oldPiece.color == this.color){
+            //can't castle in check and can't when a square is attacked ! you can if the rook is attacked so no worried looking if that square is attacked ! now only 
+            /*
+                    LONG CASTLING :
+                        Y2 
+                        Y3 
+                        Y4
+                    SHORT CASTLING :
+                        Y6 
+                        Y7 
+                    NOT ATTACKED BY OPPOSITE COLORS !
+                */
+            if(
+                oldPiece.constructor.name == 'Rook'
+                &&
+                !oldPiece.firstMoveDone
+                &&
+                !this.firstMoveDone
+                &&
+                this.x == oldPiece.x
+            ){
+                if( oldPiece.y >  this.y){ // SHORT CASTELING
+                    if(
+                        board.pieceAtSquare(this.x,6) 
+                            || 
+                        board.pieceAtSquare(this.x,7) 
+                    ){
+                        return false ;
+                    }else{
+                        for (const posiblPiece of board.pieces) {
+                            if(posiblPiece){
+                                if(posiblPiece.color!=this.color){
+                                    if(
+                                        posiblPiece.constructor.name == 'Queen' ||
+                                        posiblPiece.constructor.name == 'Rook'  ||
+                                        posiblPiece.constructor.name == 'Bishop'
+                                        ){
+                                            posiblPiece.recalculateAttackingSquares(board);
+                                    }
+                                    if(
+                                        posiblPiece.attackingSquares.exists({x:this.x,y:6})
+                                        ||
+                                        posiblPiece.attackingSquares.exists({x:this.x,y:7})
+                                        ){
+                                        return  false;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }else{// LONG CASTELING
+                    if( 
+                        board.pieceAtSquare(this.x,4)
+                            ||
+                        board.pieceAtSquare(this.x,3)
+                            ||
+                        board.pieceAtSquare(this.x,2)
+                    ){
+                        return false ;
+                    }else{
+                        for (const posiblPiece of board.pieces) {
+                            if(posiblPiece){
+                                if(posiblPiece.color!=this.color){
+                                    if(
+                                        posiblPiece.constructor.name == 'Queen' ||
+                                        posiblPiece.constructor.name == 'Rook'  ||
+                                        posiblPiece.constructor.name == 'Bishop'
+                                        ){
+                                            posiblPiece.recalculateAttackingSquares(board);
+                                    }
+                                    if(
+                                        posiblPiece.attackingSquares.exists({x:this.x,y:2})
+                                        ||
+                                        posiblPiece.attackingSquares.exists({x:this.x,y:3})
+                                        ||
+                                        posiblPiece.attackingSquares.exists({x:this.x,y:4})
+                                        ){
+                                        return  false;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                return true ;
+            }
             return false ;
         }
     }

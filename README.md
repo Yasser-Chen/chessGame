@@ -1,7 +1,9 @@
+NOTE : added Castling !
+
 This chess game is not 90% finished ! 
 must add :
-  - HasPossibleMoves must consider that pawns can promote to queen/knight/bishop/rook to defend a check !
-  - Highlighting possible moves must show playable moves not the attacked squares
-  - Castling !
+  - Must add Draw by 3 times repeatition unlimited times of repeats
+  - Must add En Passant
+  - Highlighting possible moves must show playable moves not just the attacked squares
   
   Made by Yasser Chenik
