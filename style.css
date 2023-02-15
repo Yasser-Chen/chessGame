@@ -1,5 +1,5 @@
 body{
-    background-color: black;
+    background-color: rgb(43, 43, 43);
 }
 
 div#game.role-black .fg-white{
@@ -28,11 +28,11 @@ div#game.role-white .fg-black{
 .board{
     height: 500px;    
     width : 500px;    
-    background-color: black;
     color: white;
     text-align: center;
+    margin: 0px;
+    padding: 0px;
 }
-
 i{
     font-size: 40px;
     margin: 0;
@@ -88,39 +88,25 @@ i{
 td.incheck{
   background-color: rgb(211, 76, 76);  
 }
-.th{
-    padding : 0!important ;
-    width   : 0!important ;
-}
 .low-on-time{
     background-color: rgb(160, 0, 0)!important;
 }
-.fixed-with{
-    width: 61.43px;
-    display: block;
-}
 td{
+    display: inline-block;
     width: 61.43px;
     height: 61.43px;
-    text-align:center;
 }
-td i{
-    min-width: 40px!important;
-    min-height: 40px!important;
+td i {
+    width: 61.43px;
+    height: 61.43px;
+    display: flex!important;
+    align-items: center;
+    justify-content: center;
 }
 .btn-select-piece{
     padding: 5px;
     border: 1px rgb(61, 60, 60) solid;
     margin: 1px;
-}
-th {
-    -webkit-touch-callout: none; /* iOS Safari */
-      -webkit-user-select: none; /* Safari */
-       -khtml-user-select: none; /* Konqueror HTML */
-         -moz-user-select: none; /* Old versions of Firefox */
-          -ms-user-select: none; /* Internet Explorer/Edge */
-              user-select: none; /* Non-prefixed version, currently
-                                    supported by Chrome, Edge, Opera and Firefox */
 }
 #game{
     position: relative ;
@@ -158,9 +144,88 @@ i.ui-draggable-dragging {
 
 
 .white.possibleMove{
-    background-color: #e4b944;
+    background-color: #5bec6f;
 }
 
 .black.possibleMove{
-    background-color: #7e6522;
+    background-color: #013b0b;
+}
+.possibleMove{
+    box-shadow:0 0 15px 0 #ffcc00;
+}
+
+
+
+
+
+.cords{
+    position: relative;
+}
+.cords:after{
+    position: absolute;
+    right: 5px;
+    bottom: 5px;
+    font-weight: bold;
+    font-size: small;
+}
+.cords:before{
+    position: absolute;
+    left: 3px;
+    top: 1px;
+    font-weight: bold;
+    font-size: small;
+}
+.cords.black:after,.cords.black:before{
+    color: #fff;
+}
+.cords.white:after,.cords.white:before{
+    color: #000;
+}
+.cords-h:after {
+    content: "h";
+}
+.cords-g:after {
+    content: "g";
+}
+.cords-f:after {
+    content: "f";
+}
+.cords-e:after {
+    content: "e";
+}
+.cords-d:after {
+    content: "d";
+}
+.cords-c:after {
+    content: "c";
+}
+.cords-b:after {
+    content: "b";
+}
+.cords-a:after {
+    content: "a";
+}
+.cords-1:before {
+    content: "1";
+}
+.cords-2:before {
+    content: "2";
+}
+.cords-3:before {
+    content: "3";
+}
+.cords-4:before {
+    content: "4";
+}
+.cords-5:before {
+    content: "5";
+}
+.cords-6:before {
+    content: "6";
+}
+.cords-7:before {
+    content: "7";
+}
+.cords-8:before {
+    content: "8";
 }

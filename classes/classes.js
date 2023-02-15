@@ -6,17 +6,29 @@ var castel      = new Audio(`audios/castel.mp3`)       ,
     eat         = new Audio(`audios/eat.mp3`)          ,
     gameStarted = new Audio(`audios/game started.mp3`) ,
     movePlayed  = new Audio(`audios/move played.mp3`)  ,
-    timeWarning = new Audio(`audios/time-warning.mp3`)  ,
+    timeWarning = new Audio(`audios/time-warning.mp3`) ,
     stallMate   = new Audio(`audios/stallmate.mp3`)    ;
 
+var dragStart = false ;
+
+window.lastPawnMoved  = null ;
+
 function onPieceDrag(e,ui){
-    var pieceElem = ui.helper[0],
-    piece = $(pieceElem).data('piece');
-    for (const cXandY of piece.attackingSquares) {
-        $(`td[x=${cXandY.x}][y=${cXandY.y}]`).addClass('possibleMove');
+    if(!dragStart){
+        dragStart=true;
+        var pieceElem = ui.helper[0],
+        piece = $(pieceElem).data('piece');
+        for( let x = 1; x<=8 ; x++ ){
+            for( let y = 1; y<=8 ; y++ ){
+                if( piece.isLegal(board,x,y) && !board.isCheckIfMovePlayed(piece,x,y) ){
+                    $(`td[x=${x}][y=${y}]`).addClass('possibleMove');
+                }
+            }
+        }
     }
 }
 function onPieceStopDrag() {  
+    dragStart = false;
     $('.possibleMove').removeClass('possibleMove');
 }
 
@@ -125,13 +137,21 @@ function Board(board){
     let bigBoardObject = this ;
     this.movesCounter = 0 ;
     this.board = board  ;
-    this.turn = 'black';
+    this.turn = 'white';
     this.pieces = []    ;
     this.timerWhite = startTimer(window.timeSetted + 0.5, function() { stallMate.play(); bigBoardObject.playerWon('black','on time');},$('#WhiteTimer')[0]);
     this.timerBlack = startTimer(window.timeSetted + 0.5, function() { stallMate.play(); bigBoardObject.playerWon('white','on time');},$('#BlackTimer')[0]);
-    this.aterTurns();
     gameStarted.play();
-    
+    this.timerWhite.pause();
+    this.timerBlack.resume();
+    $(`.fg-${this.turn}`).draggable({ 
+        drag: onPieceDrag,
+        accept: 'td',
+        containment: "#game", 
+        stop: onPieceStopDrag,
+        scroll: false 
+    });
+    $(`#game`).addClass(`role-${this.turn}`);
     $("td").droppable({
         drop: function(event, ui) {
             event.stopPropagation();
@@ -154,14 +174,25 @@ function Board(board){
                 //else do this =>
 
                 else if( piece.isLegal(bigBoardObject,x,y) && !bigBoardObject.isCheckIfMovePlayed(piece,x,y) ){
+                    if(piece.constructor.name=='Pawn' && piece.isEnPassant(bigBoardObject,x,y)){
+                        bigBoardObject.attackPawnBeheindEnPassant(piece,x,y);
+                    }
                     $(".incheck").removeClass('incheck');
                     piece.x = x;
                     piece.y = y;
+                    if(window.lastPawnMoved ){
+                        window.lastPawnMoved.cantEnpassant = true ;
+                    }
                     piece.firstMoveDone = true ;
+
+                    if( piece.constructor.name == 'Pawn' ){
+                        window.lastPawnMoved = piece ;
+                    }
+                    
                     bigBoardObject.moveTo(piece,square);
                     //detect if a checkmate was done
                     if(piece.constructor.name=='Pawn' && (piece.x == 8 && piece.color=='black' || piece.x == 1 && piece.color=='white')){
-                        $(`.fg-${this.turn}`).draggable('destroy');
+                        $(`.fg-${bigBoardObject.turn}`).draggable('destroy');
 
                         let div = $('<div>');
                         let btn = $(`<button class="btn btn-dark btn-select-piece">
@@ -169,6 +200,8 @@ function Board(board){
                                     </button>`);
                         btn.on('click', function () {
                             piece.element.popover('dispose');
+                            let index = bigBoardObject.pieces.indexOf(piece) ;
+                            delete bigBoardObject.pieces[index];
                             square.empty();
                             bigBoardObject.add(new Queen(piece.x,piece.y,piece.color));
                             bigBoardObject.aterTurns();
@@ -179,6 +212,8 @@ function Board(board){
                                 </button>`);
                         btn.on('click', function () {
                             piece.element.popover('dispose');
+                            let index = bigBoardObject.pieces.indexOf(piece) ;
+                            delete bigBoardObject.pieces[index];
                             square.empty();
                             bigBoardObject.add(new Knight(piece.x,piece.y,piece.color));
                             bigBoardObject.aterTurns();
@@ -189,6 +224,8 @@ function Board(board){
                                 </button>`);
                         btn.on('click', function () {
                             piece.element.popover('dispose');
+                            let index = bigBoardObject.pieces.indexOf(piece) ;
+                            delete bigBoardObject.pieces[index];
                             square.empty();
                             bigBoardObject.add(new Rook(piece.x,piece.y,piece.color));
                             bigBoardObject.aterTurns();
@@ -199,6 +236,8 @@ function Board(board){
                                 </button>`);
                         btn.on('click', function () {
                             piece.element.popover('dispose');
+                            let index = bigBoardObject.pieces.indexOf(piece) ;
+                            delete bigBoardObject.pieces[index];
                             square.empty();
                             bigBoardObject.add(new Bishop(piece.x,piece.y,piece.color));
                             bigBoardObject.aterTurns();
@@ -215,33 +254,22 @@ function Board(board){
                     }else{
                         bigBoardObject.aterTurns();
                     }
-                    
-                    let inCheck = bigBoardObject.inCheck(bigBoardObject.turn);
-
-                    let playCheckSound = false;
-                    if(inCheck){
-                        $(`.king.fg-${bigBoardObject.turn}`).parent('td').addClass('incheck');
-                        playCheckSound = true ;
-                    }
-                    let hasAuthMoves = bigBoardObject.hasAuthMoves(bigBoardObject.turn);
-
-                    //if can't play and check = check mate
-                    if(inCheck && !hasAuthMoves){
-                        playCheckSound = false;
-                        checkMate.play();
-                        bigBoardObject.playerWon((bigBoardObject.turn =='white'?'black' :'white'),` by checkmate`);
-                    }else if(!hasAuthMoves){
-                        bigBoardObject.stallMate(`No legal move left for ${bigBoardObject.turn}`);
-                    }
-
-                    if(playCheckSound){
-                        check.play();
-                    }
-
                 }
             }
         }
     });
+}
+Board.prototype.attackPawnBeheindEnPassant = function (piece,x,y) {
+    if(piece.color=='black'){
+        let index = this.pieces.indexOf(this.pieceAtSquare(5,y)) ;
+        delete this.pieces[index];
+        $(`td[x=5][y=${y}]`).empty();
+    }
+    else if(piece.color=='white'){
+        let index = this.pieces.indexOf(this.pieceAtSquare(4,y)) ;
+        delete this.pieces[index];
+        $(`td[x=4][y=${y}]`).empty();
+    }
 }
 
 Board.prototype.isCheckIfMovePlayed = function (piece,x,y) {
@@ -334,13 +362,7 @@ Board.prototype.inCheck = function (color,Kx,Ky) {
     for (const piece of this.pieces) {
         if(piece){
             if(piece.color!=color){
-                if(
-                    piece.constructor.name == 'Queen' ||
-                    piece.constructor.name == 'Rook'  ||
-                    piece.constructor.name == 'Bishop'
-                    ){
-                    piece.recalculateAttackingSquares(this)
-                }
+                piece.recalculateAttackingSquares(this)
                 if(piece.attackingSquares.exists({x:attrX,y:attrY})){
                     return  true;
                 }
@@ -370,8 +392,9 @@ Board.prototype.hasAuthMoves = function (color) {
         if(piece){
             let oldAttacks = [] ;
             Object.assign(oldAttacks, piece.attackingSquares) ;
-            pieceX = piece.x ,
-            pieceY = piece.y ;
+            let pieceX = piece.x ,
+                pieceY = piece.y ;
+
             if(piece.color==color){
                 if(piece.constructor.name!='Pawn'){
                     for (const attack of oldAttacks){
@@ -443,6 +466,8 @@ Board.prototype.hasAuthMoves = function (color) {
                             }
                         }
                     }
+                    piece.x = pieceX ;
+                    piece.y = pieceY ;
                     pieceMove = board.pieceAtSquare(forwardOnly(piece.x,1),piece.y+1) ; 
                     let indexOfDelete = -1 ;
                     piece.x = forwardOnly(piece.x,1) ;
@@ -461,6 +486,8 @@ Board.prototype.hasAuthMoves = function (color) {
                             }
                         }
                     }
+                    piece.x = pieceX ;
+                    piece.y = pieceY ;
                     pieceMove = board.pieceAtSquare(forwardOnly(piece.x,1),piece.y-1) ;
                     piece.x = forwardOnly(piece.x,1) ;
                     piece.y = piece.y-1 ;
@@ -504,9 +531,39 @@ Board.prototype.add = function (piece) {
     $(`td[x=${piece.x}][y=${piece.y}]`).html(piece.element);
 }
 Board.prototype.aterTurns = function () {
-    $(`#game`).removeClass('role-black role-white');
-    $(`.fg-${this.turn}`).draggable('destroy');
-    this.turn = this.turn == 'white' ? 'black' : 'white' ;
+    this.turn = ((this.turn == 'white') ? 'black' : 'white') ;
+
+    let inCheck = this.inCheck(this.turn);
+
+    let playCheckSound = false;
+    if(inCheck){
+        $(`.king.fg-${this.turn}`).parent('td').addClass('incheck');
+        playCheckSound = true ;
+    }
+    let hasAuthMoves = this.hasAuthMoves(this.turn);
+
+    //if can't play and check = check mate
+    if(inCheck && !hasAuthMoves){
+        playCheckSound = false;
+        checkMate.play();
+        this.playerWon((this.turn =='white'?'black' :'white'),` by checkmate`);
+    }else if(!hasAuthMoves){
+        this.stallMate(`No legal move left for ${this.turn}`);
+    }
+
+    if(playCheckSound){
+        check.play();
+    }
+
+
+
+    try{
+        $(`.fg-${(this.turn =='white'?'black' :'white')}`).draggable('destroy');
+    }catch(error){
+        // console.error(error);
+        // happends when you promote 
+    }
+
     if(this.turn == 'white'){
         this.timerWhite.resume();
         this.timerBlack.pause();
@@ -516,9 +573,12 @@ Board.prototype.aterTurns = function () {
     }
     $(`.fg-${this.turn}`).draggable({ 
         drag: onPieceDrag,
+        accept: 'td',
+        containment: "#game",
         stop: onPieceStopDrag,
         scroll: false 
     });
+    $(`#game`).removeClass('role-black role-white');
     $(`#game`).addClass(`role-${this.turn}`);
 }
 Board.prototype.moveTo = function (piece,square) {
@@ -547,6 +607,8 @@ Board.prototype.moveTo = function (piece,square) {
             let king = $(piece.element).detach() ;
             king.draggable({
                 drag: onPieceDrag,
+                accept: 'td',
+                containment: "#game", 
                 stop: onPieceStopDrag,
                 scroll: false 
             });
@@ -555,6 +617,8 @@ Board.prototype.moveTo = function (piece,square) {
             let rook = $(oldPiece.element).detach() ;
             rook.draggable({
                 drag: onPieceDrag,
+                accept: 'td',
+                containment: "#game", 
                 stop: onPieceStopDrag,
                 scroll: false 
             });
@@ -582,6 +646,8 @@ Board.prototype.moveTo = function (piece,square) {
         let a = $(piece.element).detach();
         a.draggable({
             drag: onPieceDrag,
+            accept: 'td',
+            containment: "#game", 
             stop: onPieceStopDrag,
             scroll: false 
         });
@@ -613,6 +679,8 @@ function Piece(x,y,color){
     this.element.data('piece',this);
     this.element.draggable({ 
         drag: onPieceDrag,
+        accept: 'td',
+        containment: "#game", 
         stop: onPieceStopDrag,
         scroll: false 
     });
@@ -823,13 +891,103 @@ Pawn.prototype.recalculateAttackingSquares = function(board) {
     
 }
 
+Pawn.prototype.isEnPassant = function(board,x,y) {
+    let oldPiece = board.pieceAtSquare(x,y);
+    if(oldPiece){
+            return false ;
+    }else if( 
+                this.x == 4 
+                && 
+                this.color=='white'
+                &&
+                x == 3 
+                &&
+                (y == this.y - 1 || y == this.y + 1)
+            ){
+        let enPassantPiece = board.pieceAtSquare(4,y);
+        if( enPassantPiece && window.lastPawnMoved && (window.lastPawnMoved == enPassantPiece) && !window.lastPawnMoved.cantEnpassant ){
+            try{
+                console.log((window.lastPawnMoved == enPassantPiece));
+        
+            }catch(error){
+                
+            }
+        
+            return true ;
+        }
+    }else if( 
+                this.x == 5 
+                && 
+                this.color=='black'
+                &&
+                x == 6
+                &&
+                (y == this.y - 1 || y == this.y + 1)
+            ){
+        let enPassantPiece = board.pieceAtSquare(4,y);
+        if( enPassantPiece && window.lastPawnMoved && (window.lastPawnMoved == enPassantPiece) && window.lastPawnMoved.cantEnpassant){
+            try{
+                console.log((window.lastPawnMoved == enPassantPiece));
+        
+            }catch(error){
+                
+            }
+        
+            return true ;
+        }
+    }
+    return false ;
+}
+
 Pawn.prototype.isLegal = function(board,x,y) {
+
+
     //check if king is in check
     let oldPiece = board.pieceAtSquare(x,y);
     // can't eat same color
     if(oldPiece){
         if(oldPiece.color == this.color)
             return false ;
+    }else if( //could be En passant
+                this.x == 4 
+                && 
+                this.color=='white'
+                &&
+                x == 3 
+                &&
+                (y == this.y - 1 || y == this.y + 1)
+            ){
+        let enPassantPiece = board.pieceAtSquare(4,y);
+        if( enPassantPiece && window.lastPawnMoved && (window.lastPawnMoved == enPassantPiece) && !window.lastPawnMoved.cantEnpassant ){
+            try{
+                console.log((window.lastPawnMoved == enPassantPiece));
+        
+            }catch(error){
+                
+            }
+        
+            return true ;
+        }
+    }else if( //could be En passant
+                this.x == 5 
+                && 
+                this.color=='black'
+                &&
+                x == 6
+                &&
+                (y == this.y - 1 || y == this.y + 1)
+            ){
+        let enPassantPiece = board.pieceAtSquare(4,y);
+        if( enPassantPiece && window.lastPawnMoved && (window.lastPawnMoved == enPassantPiece) && window.lastPawnMoved.cantEnpassant){
+            try{
+                console.log((window.lastPawnMoved == enPassantPiece));
+        
+            }catch(error){
+                
+            }
+        
+            return true ;
+        }
     }
 
     let forwardOnly ; 
@@ -928,13 +1086,9 @@ King.prototype.isLegal = function(board,x,y) {
                         for (const posiblPiece of board.pieces) {
                             if(posiblPiece){
                                 if(posiblPiece.color!=this.color){
-                                    if(
-                                        posiblPiece.constructor.name == 'Queen' ||
-                                        posiblPiece.constructor.name == 'Rook'  ||
-                                        posiblPiece.constructor.name == 'Bishop'
-                                        ){
-                                            posiblPiece.recalculateAttackingSquares(board);
-                                    }
+                                    
+                                    posiblPiece.recalculateAttackingSquares(board);
+                                    
                                     if(
                                         posiblPiece.attackingSquares.exists({x:this.x,y:6})
                                         ||
@@ -959,13 +1113,9 @@ King.prototype.isLegal = function(board,x,y) {
                         for (const posiblPiece of board.pieces) {
                             if(posiblPiece){
                                 if(posiblPiece.color!=this.color){
-                                    if(
-                                        posiblPiece.constructor.name == 'Queen' ||
-                                        posiblPiece.constructor.name == 'Rook'  ||
-                                        posiblPiece.constructor.name == 'Bishop'
-                                        ){
-                                            posiblPiece.recalculateAttackingSquares(board);
-                                    }
+                                    
+                                    posiblPiece.recalculateAttackingSquares(board);
+                                    
                                     if(
                                         posiblPiece.attackingSquares.exists({x:this.x,y:2})
                                         ||
