@@ -122,6 +122,20 @@ function startTimer(seconds , oncomplete , display) {
 }
   
 
+function Move(board){
+    let tab = [] ;
+
+    for (const piece of board.pieces) {        
+        if(piece){
+            tab.push(`${piece.color}-${piece.x}-${piece.y}-${piece.constructor.name}`.padEnd(6));
+        }
+    }
+
+    tab.sort();
+
+    this.boardDescription = tab.join('||') ;
+}
+
   
 $("html").droppable({
     drop: function(event, ui) {
@@ -131,14 +145,16 @@ $("html").droppable({
         });
     }
 });
+
 function Board(board){
     window.gameState = 'playing' ;
     $('.overlay').css('display','none');
     let bigBoardObject = this ;
     this.movesCounter = 0 ;
-    this.board = board  ;
+    this.board = board ;
     this.turn = 'white';
-    this.pieces = []    ;
+    this.pieces = []   ;
+    this.moves  = []   ;
     this.timerWhite = startTimer(window.timeSetted + 0.5, function() { stallMate.play(); bigBoardObject.playerWon('black','on time');},$('#WhiteTimer')[0]);
     this.timerBlack = startTimer(window.timeSetted + 0.5, function() { stallMate.play(); bigBoardObject.playerWon('white','on time');},$('#BlackTimer')[0]);
     gameStarted.play();
@@ -188,8 +204,22 @@ function Board(board){
                     if( piece.constructor.name == 'Pawn' ){
                         window.lastPawnMoved = piece ;
                     }
+
+                    
+                    let currentMove = new Move(bigBoardObject) ,
+                    repetitionCounter = 1 ;
+                    for (const move of bigBoardObject.moves) {
+                        if(move.boardDescription == currentMove.boardDescription){
+                            repetitionCounter ++;
+                            if(repetitionCounter == 3){
+                                bigBoardObject.stallMate('Draw by 3 times repeatition');
+                            }
+                        }
+                    }
                     
                     bigBoardObject.moveTo(piece,square);
+
+
                     //detect if a checkmate was done
                     if(piece.constructor.name=='Pawn' && (piece.x == 8 && piece.color=='black' || piece.x == 1 && piece.color=='white')){
                         $(`.fg-${bigBoardObject.turn}`).draggable('destroy');
@@ -587,7 +617,7 @@ Board.prototype.moveTo = function (piece,square) {
     });
     let oldPiece = ($(square).find('i')??{data:()=>{}}).data('piece') ;
     let oldIndex = this.pieces.indexOf(oldPiece);
-    console.log(oldPiece);
+    
     if(
         oldPiece
         &&
@@ -661,6 +691,9 @@ Board.prototype.moveTo = function (piece,square) {
         piece.recalculateAttackingSquares(this);
         $(square).append(a);
     }
+
+
+    this.moves.push(new Move(this));
 
     this.movesCounter ++;
 }
