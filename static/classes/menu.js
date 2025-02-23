@@ -1,5 +1,15 @@
 $(".overlay").css("display", "flex");
 
+$("html").droppable({
+  drop: function (event, ui) {
+    event.preventDefault();
+    $(ui.draggable).css({
+      top: "0px",
+      left: "0px",
+    });
+  },
+});
+
 let searchingLoop = -1;
 
 var createNewGame = (playAs) => {
@@ -92,6 +102,8 @@ $("#playerIncrementInput , #playerTimeInput").on("input", function (e) {
   }
 });
 
+var syncDone = false;
+
 function initGame() {
   $(".is-invalid").removeClass("is-invalid");
   let isValid = true;
@@ -124,7 +136,7 @@ function initGame() {
 
       window.gameSocket = new WebSocket(url);
 
-      window.gameSocket.onchess_event = function (e) {
+      window.gameSocket.onmessage = function (e) {
         let data = JSON.parse(JSON.parse(e.data).chess_event);
 
         if (
@@ -160,6 +172,7 @@ function initGame() {
               createNewGame("black");
 
               window.playAs = "black";
+              animateRotate();
             }, diffTime);
           } else {
             //must play as black
@@ -204,8 +217,6 @@ function initGame() {
   }
 }
 
-var syncDone = false;
-
 function showSquaresQueen() {
   var arr = {};
   for (var a of board.pieces) {
@@ -217,39 +228,3 @@ function showSquaresQueen() {
   }
   console.log(arr);
 }
-
-// var FLIP= true;
-// function animateRotate() {
-//   var $elem = $('i, #board');
-
-//   let x = 180 ,
-//       y = 0 ;
-
-//   if(FLIP){ x = 0; y = 180; FLIP = false; }
-//   else{ FLIP = true ; }
-
-//   $({deg: x}).animate({deg: y}, {
-//       duration: 1000,
-//       step: function(now) {
-//           $elem.css({
-//               transform: 'rotate(' + now + 'deg)'
-//           });
-//       }
-//   });
-// }
-
-function resisePageMobile() {
-  if (window.innerWidth <= 800) {
-    //Detect mobile
-    $("#timerHolder").css({ display: "none" });
-    $("#spacer").css({ display: "none" });
-  } else {
-    //Detect other higher resolution screens
-    $("#timerHolder").css({ display: "unset" });
-    $("#spacer").css({ display: "unset" });
-  }
-}
-resisePageMobile(); //run once on page load
-
-//then attach to the event listener
-window.addEventListener("resize", resisePageMobile);
