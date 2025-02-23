@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="en" translate="no">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" >
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" >
     <title>Chess Game</title>
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="stylesheet" href="bootstrap/bootstrap.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-    <link rel="stylesheet" href="fontawesome/font-awesome.css">
-    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico" >
+    <link rel="stylesheet" href="static/bootstrap/bootstrap.css" >
+    <link rel="stylesheet" href="static/bs-toggle/bootstrap4-toggle.min.css" >
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback" >
+    <link rel="stylesheet" href="static/fontawesome/font-awesome.css" >
+    <link rel="stylesheet" href="static/style.css" >
+    
 </head>
 <body style="overflow: hidden"  oncontextmenu="return false;" >
     <div id="game" class="role-black" >
@@ -52,7 +54,7 @@
                     <td class="square black cords cords-e"></div>  <td class="square white cords cords-f"></div>  <td class="square black cords cords-g"></div>  <td class="square white cords cords-h"></td>
                 </tr>
         </table>
-        <div>
+        <div id="spacer">
             &nbsp;
             &nbsp;
             &nbsp;
@@ -65,7 +67,41 @@
             <div id="WhiteTimer">05:00</div>
         </div>
         <div class="overlay">
-            <div class="row card">
+            <div  class="row card" id="loadding_pannnel" style="display:none;">
+                <div class="col-12">
+                    <h1 id="loading_chess_event" class="d-flex justify-content-center">
+
+                        Looking for a match
+                                                    
+                    </h1>
+
+                    <div class="spinner-grow text-primary" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <div class="spinner-grow text-secondary" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <div class="spinner-grow text-success" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <div class="spinner-grow text-danger" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <div class="spinner-grow text-warning" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <div class="spinner-grow text-info" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <div class="spinner-grow text-light" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <div class="spinner-grow text-dark" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            <div  class="row card" id="main_pannnel">
                 <div class="col-12" style="line-height: 10px!important;">&nbsp;</div>
 
                 <div class="col-12">
@@ -73,6 +109,7 @@
                         <div class="input-group">
                             <input id="playerTimeInput" type="text" value="300" class="form-control" placeholder="Example: 300 ">
                             <div class="input-group-append">
+                                <span class="input-group-text">Game time in seconds</span>
                             </div>
                         </div>
                     </div>
@@ -81,11 +118,29 @@
                 <div class="col-12">
                     <div class="d-flex justify-content-center">
                         <div class="input-group">
-                            <input id="playerIncrementInput" readonly type="text" value="0" class="form-control" placeholder="Example: 0 ">
+                            <input id="playerIncrementInput" type="text" value="0" class="form-control" placeholder="Example: 0 ">
                             <div class="input-group-append">
-                                <span class="input-group-text">Increment in seconds</span>
+                                <span class="input-group-text">Increment in seconds&nbsp;</span>
                             </div>
                         </div>
+                    </div>
+                </div>
+                <div class="col-12" style="line-height: 10px!important;">&nbsp;</div>
+                <div class="col-12">
+                    <div class="d-flex justify-content-center">
+
+                        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                            <label class="btn btn-outline-success active">
+                              <input type="radio" name="mode_of_play" value="online" checked> <span class='small'> PLay Online  <i class="fas fa-globe-africa  small"></i> </span>
+                            </label>
+                            <label class="btn btn-outline-dark">
+                              <input type="radio" name="mode_of_play" value="offline">         <span class='small'> PLay Offline <i class="fas fa-user-friends  small"></i></span>
+                            </label>
+                            <label class="btn btn-outline-secondary">
+                              <input type="radio" name="mode_of_play" value="vs_bot" >         <span class='small'> PLay vs Bot  <i class="fas fa-robot         small"></i></span>
+                            </label>
+                        </div>
+
                     </div>
                 </div>
 
@@ -103,13 +158,18 @@
         </div>
     </div>
 
+    <script>
+        const MY_USER_ID = "{{ MY_USER_ID }}";
+        const priority = "{{ prio }}" ;
+    </script>
 
-
-    <script src="jquery/jquery.js"></script>
-    <script src="bootstrap/popover.js"></script>
-    <script src="bootstrap/bootstrap.js"></script>
-    <script src="jquery/jquery-ui.js"></script>
-    <script src="classes/classes.js"></script>
-    <script src="code.js"></script>
+    <script src="static/jquery/jquery.js"></script>
+    <script src="static/bs-toggle/bootstrap4-toggle.min.js"></script>
+    <script src="static/bootstrap/popover.js"></script>
+    <script src="static/bootstrap/bootstrap.js"></script>
+    <script src="static/jquery/jquery-ui.js"></script>
+    <script src="static/jquery/jquery.simulate.js"></script>
+    <script src="static/classes/classes.js"></script>
+    <script src="static/code.js"></script>
 </body>
 </html>

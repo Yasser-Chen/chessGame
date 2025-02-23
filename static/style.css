@@ -19,6 +19,7 @@ div#game.role-white .fg-black{
     /* color: rgb(34, 34, 34); */
 }
 
+
 .btn-start{
     color: white!important;
     font-size: 40px;
@@ -34,6 +35,7 @@ div#game.role-white .fg-black{
     padding: 0px;
 }
 i{
+    z-index: 48;
     font-size: 40px;
     margin: 0;
 }
@@ -229,3 +231,5 @@ i.ui-draggable-dragging {
 .cords-8:before {
     content: "8";
 }
+
+
