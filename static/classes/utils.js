@@ -15,6 +15,49 @@ var dragStart = false;
 
 window.lastPawnMoved = null;
 
+function initHtmlBoard(board, FLIP = false) {
+  let iStart = 0,
+    jStart = 1,
+    Di = 1,
+    Dj = 1;
+
+  if (FLIP) {
+    iStart = 9;
+    jStart = 8;
+    Di = -1;
+    Dj = -1;
+  }
+
+  let i = iStart;
+  for (let row of board.board.find(`tr`)) {
+    let j = jStart;
+    for (let square of $(row).find("td")) {
+      $(square).attr("x", i);
+      $(square).attr("y", j);
+
+      if (FLIP) {
+        for (let n = 1; n <= 8; n++) {
+          if ($(square).hasClass(`cords-${n}`)) {
+            $(square)
+              .removeClass(`cords-${n}`)
+              .addClass(`cords-${9 - n}`);
+          }
+        }
+        const letters = ["a", "b", "c", "d", "e", "f", "g", "h"];
+        for (let l = 0; l < letters.length; l++) {
+          if ($(square).hasClass(`cords-${letters[l]}`)) {
+            $(square)
+              .removeClass(`cords-${letters[l]}`)
+              .addClass(`cords-${letters[7 - l]}`);
+          }
+        }
+      }
+      j += Dj;
+    }
+    i += Di;
+  }
+}
+
 function onPieceDrag(e, ui) {
   if (!dragStart) {
     dragStart = true;
@@ -156,31 +199,3 @@ resisePageMobile(); //run once on page load
 
 //then attach to the event listener
 window.addEventListener("resize", resisePageMobile);
-
-var FLIP = false;
-function animateRotate() {
-  var $elem = $("i, #board");
-
-  let x = 180,
-    y = 0;
-
-  if (FLIP) {
-    FLIP = false;
-  } else {
-    x = 0;
-    y = 180;
-    FLIP = true;
-  }
-
-  $({ deg: x }).animate(
-    { deg: y },
-    {
-      duration: 0,
-      step: function (now) {
-        $elem.css({
-          transform: "rotate(" + now + "deg)",
-        });
-      },
-    }
-  );
-}

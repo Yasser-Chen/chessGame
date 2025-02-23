@@ -48,7 +48,7 @@ function makeMove(board, x, y, newX, newY) {
           dx: dx,
           dy: dy,
         });
-      }, animationTime + 100);
+      }, animationTime + 10);
     }
   }
 

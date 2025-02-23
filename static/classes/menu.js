@@ -15,16 +15,7 @@ let searchingLoop = -1;
 var createNewGame = (playAs) => {
   window.board = new Board($("#board"), playAs);
 
-  let i = 0; //the first tr is useless
-  for (let row of board.board.find(`tr`)) {
-    let j = 1;
-    for (let square of $(row).find("td")) {
-      $(square).attr("x", i);
-      $(square).attr("y", j);
-      j++;
-    }
-    i++;
-  }
+  initHtmlBoard(board, playAs == "black");
 
   for (let i = 1; i <= 8; i++) {
     board.add(new Pawn(2, i, "black"));
@@ -172,10 +163,8 @@ function initGame() {
               createNewGame("black");
 
               window.playAs = "black";
-              animateRotate();
             }, diffTime);
           } else {
-            //must play as black
             setTimeout(function () {
               createNewGame("white");
 
