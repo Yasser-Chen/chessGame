@@ -4,14 +4,14 @@ This project implements all standard chess moves, rules, and basic checks. It fe
 
 ### To Do:
 
-- Implement board flipping for each color's perspective.
-- Add login functionality and user color randomization.
-- Implement more robust timers.
-- Secure the application against vulnerabilities.
-- Implement premoves.
-- Make the board responsive for different screen sizes.
-- Develop an AI opponent that makes optimal moves using deep learning techniques.
-- Fix the bug that occurs after castling.
+- [Implement board flipping for each color's perspective](https://github.com/Yasser-Chen/chessGame/issues/1).
+- [Add login functionality and user color randomization](https://github.com/Yasser-Chen/chessGame/issues/2).
+- [Implement more robust timers](https://github.com/Yasser-Chen/chessGame/issues/3).
+- [Secure the application against vulnerabilities](https://github.com/Yasser-Chen/chessGame/issues/4).
+- [Implement premoves](https://github.com/Yasser-Chen/chessGame/issues/5).
+- [Make the board responsive for different screen sizes](https://github.com/Yasser-Chen/chessGame/issues/6).
+- [Develop an AI opponent that makes optimal moves using deep learning techniques](https://github.com/Yasser-Chen/chessGame/issues/7).
+- [Fix the bug that occurs after castling](https://github.com/Yasser-Chen/chessGame/issues/8).
 
 ### Running the Project:
 
